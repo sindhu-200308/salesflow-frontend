@@ -1,0 +1,228 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Sales</h1>
+    <p class="page-subtitle">Create and track your sales</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ New Sale</button>
+</div>
+
+<!-- My Summary Cards -->
+<div *ngIf="summary" class="stats-grid" style="margin-bottom:24px;">
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">₹{{ summary.totalRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">My Revenue</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ summary.totalSales }}</div>
+    <div class="stat-label">Total Sales</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ summary.completedSales }}</div>
+    <div class="stat-label">Completed</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--amber)">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value">{{ summary.pendingSales }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+</div>
+
+<!-- My Sales Table -->
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">Sales History</span>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input placeholder="Search customer..." [(ngModel)]="searchTerm" (input)="filter()" />
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sale of filtered">
+          <td class="mono muted-sm">{{ sale.id }}</td>
+          <td>
+            <div class="sale-name">{{ sale.customerName }}</div>
+            <div class="sale-company">{{ sale.customerCompany || '' }}</div>
+          </td>
+          <td class="mono" style="color:var(--text-muted)">{{ sale.items?.length || 0 }}</td>
+          <td class="revenue-cell">₹{{ sale.totalAmount | number:'1.2-2' }}</td>
+          <td><span class="badge badge-{{ sale.status.toLowerCase() }}">{{ sale.status }}</span></td>
+          <td class="mono muted-sm">{{ sale.createdAt | date:'dd MMM yy' }}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" (click)="viewSale(sale)">View</button>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon">🛒</div>
+              <div class="empty-text">No sales yet. Click "+ New Sale" to create one.</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== CREATE SALE MODAL ====== -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeAll()">
+  <div class="modal modal-xl" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">New Sale</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="createError" class="alert alert-error">{{ createError }}</div>
+      <div *ngIf="createSuccess" class="alert alert-success">✅ {{ createSuccess }}</div>
+
+      <!-- Step 1: Select Customer -->
+      <div class="form-group">
+        <label class="form-label">1. Select Customer *</label>
+        <select class="form-control" [(ngModel)]="selectedCustomerId" (change)="onCustomerChange()">
+          <option [ngValue]="null">Choose a customer...</option>
+          <option *ngFor="let c of customers" [ngValue]="c.id">
+            {{ c.name }} {{ c.company ? '— ' + c.company : '' }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Step 2: Add Products -->
+      <div class="form-group">
+        <label class="form-label">2. Add Products *</label>
+
+        <!-- Product selector row -->
+        <div class="product-selector">
+          <select class="form-control" [(ngModel)]="pickProductId">
+            <option [ngValue]="null">Select product...</option>
+            <option *ngFor="let p of products" [ngValue]="p.id">
+              {{ p.name }} — ₹{{ p.price | number:'1.2-2' }}
+              {{ p.category ? '(' + p.category + ')' : '' }}
+            </option>
+          </select>
+          <input class="form-control qty-input" type="number" min="1" [(ngModel)]="pickQty" placeholder="Qty" />
+          <button class="btn btn-primary" (click)="addItem()" [disabled]="!pickProductId || !pickQty || pickQty < 1">
+            + Add
+          </button>
+        </div>
+
+        <!-- Cart items -->
+        <div *ngIf="cartItems.length > 0" class="cart-table-wrap">
+          <table class="cart-table">
+            <thead>
+              <tr><th>Product</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of cartItems; let i = index">
+                <td>{{ item.productName }}</td>
+                <td class="mono">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                <td>
+                  <input class="form-control qty-inline" type="number" min="1"
+                         [(ngModel)]="item.quantity" (change)="recalcItem(i)" />
+                </td>
+                <td class="revenue-cell">₹{{ item.subtotal | number:'1.2-2' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger" (click)="removeItem(i)">✕</button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" class="total-label">Grand Total</td>
+                <td class="revenue-cell total-value">₹{{ grandTotal | number:'1.2-2' }}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div *ngIf="cartItems.length === 0" class="cart-empty">
+          <span>🛒 No items added yet</span>
+        </div>
+      </div>
+
+      <!-- Step 3: Notes -->
+      <div class="form-group">
+        <label class="form-label">3. Notes (optional)</label>
+        <textarea class="form-control" [(ngModel)]="saleNotes" rows="2"
+                  placeholder="Any additional notes about this sale..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Cancel</button>
+      <button class="btn btn-primary"
+              (click)="submitSale()"
+              [disabled]="!selectedCustomerId || cartItems.length === 0 || saving">
+        {{ saving ? 'Creating...' : '✅ Create Sale' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== VIEW SALE DETAIL MODAL ====== -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeAll()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Sale #{{ selectedSale?.id }} — {{ selectedSale?.customerName }}</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedSale">
+      <div class="sale-detail-grid">
+        <div class="detail-block">
+          <div class="detail-label">Customer</div>
+          <div class="detail-value">{{ selectedSale.customerName }}</div>
+          <div class="detail-sub">{{ selectedSale.customerEmail }}</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Status</div>
+          <span class="badge badge-{{ selectedSale.status.toLowerCase() }}">{{ selectedSale.status }}</span>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Total Amount</div>
+          <div class="detail-value revenue-cell">₹{{ selectedSale.totalAmount | number:'1.2-2' }}</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Date</div>
+          <div class="detail-value mono">{{ selectedSale.createdAt | date:'dd MMM yyyy' }}</div>
+        </div>
+      </div>
+
+      <div class="items-section">
+        <div class="items-title">Order Items</div>
+        <table class="items-table">
+          <thead><tr><th>Product</th><th>Category</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let item of selectedSale.items">
+              <td>{{ item.productName }}</td>
+              <td style="color:var(--text-muted)">{{ item.productCategory || '—' }}</td>
+              <td class="mono">{{ item.quantity }}</td>
+              <td class="mono">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+              <td class="revenue-cell">₹{{ item.subtotal | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="total-label">Total</td>
+              <td class="revenue-cell total-value">₹{{ selectedSale.totalAmount | number:'1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div *ngIf="selectedSale.notes" class="notes-block">
+        <div class="detail-label">Notes</div>
+        <div class="detail-sub">{{ selectedSale.notes }}</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Close</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,152 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Sales Reports</h1>
+    <p class="page-subtitle">Track your team's sales performance</p>
+  </div>
+</div>
+
+<!-- Overall Stats -->
+<div *ngIf="stats" class="stats-grid">
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">₹{{ stats.totalRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">Total Revenue</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--amber)">
+    <div class="stat-icon">📅</div>
+    <div class="stat-value">₹{{ stats.monthlyRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">This Month</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ stats.totalSales }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ stats.completedSales }}</div>
+    <div class="stat-label">Completed</div>
+  </div>
+</div>
+
+<!-- Employee Performance Table -->
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-header">
+    <span class="table-title">🏆 Employee Sales Performance</span>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Employee</th><th>Total Revenue</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of stats?.topEmployees">
+          <td>{{ emp.employeeName }}</td>
+          <td class="revenue-cell">₹{{ emp.totalSales | number:'1.0-0' }}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" (click)="viewEmployeeSales(emp.employeeId, emp.employeeName)">
+              View Sales
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="!stats?.topEmployees?.length">
+          <td colspan="3">
+            <div class="empty-state small-empty">
+              <div class="empty-icon">📊</div>
+              <div class="empty-text">No sales data yet</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Top Products -->
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">📦 Top Selling Products</span>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>Product</th><th>Units Sold</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of stats?.topProducts; let i = index">
+          <td><span class="rank-badge">{{ i + 1 }}</span></td>
+          <td>{{ p.productName }}</td>
+          <td class="mono" style="color:var(--amber)">{{ p.totalQuantity }}</td>
+        </tr>
+        <tr *ngIf="!stats?.topProducts?.length">
+          <td colspan="3">
+            <div class="empty-state small-empty">
+              <div class="empty-text">No data yet</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Employee Sales Detail Modal -->
+<div class="modal-overlay" *ngIf="showSalesModal" (click)="closeModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Sales — {{ selectedEmployeeName }}</span>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Summary -->
+      <div class="summary-grid" *ngIf="empSummary">
+        <div class="summary-card">
+          <div class="summary-value revenue-cell">₹{{ empSummary.totalRevenue | number:'1.0-0' }}</div>
+          <div class="summary-label">Total Revenue</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">{{ empSummary.totalSales }}</div>
+          <div class="summary-label">Total Sales</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value" style="color:var(--green)">{{ empSummary.completedSales }}</div>
+          <div class="summary-label">Completed</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value" style="color:var(--amber)">{{ empSummary.pendingSales }}</div>
+          <div class="summary-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- Sales list -->
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sale of empSales">
+              <td class="mono muted-sm">{{ sale.id }}</td>
+              <td>{{ sale.customerName }}</td>
+              <td class="mono" style="color:var(--text-muted)">{{ sale.items?.length || 0 }}</td>
+              <td class="revenue-cell">₹{{ sale.totalAmount | number:'1.2-2' }}</td>
+              <td><span class="badge badge-{{ sale.status.toLowerCase() }}">{{ sale.status }}</span></td>
+              <td class="mono muted-sm">{{ sale.createdAt | date:'dd MMM yy' }}</td>
+            </tr>
+            <tr *ngIf="empSales.length === 0">
+              <td colspan="6">
+                <div class="empty-state small-empty">
+                  <div class="empty-icon">🛒</div>
+                  <div class="empty-text">No sales yet</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+/* Admin layout uses global styles from styles.css */
+/* Component-specific overrides only */
+
+.user-role {
+  color: var(--amber);
+}

@@ -1,0 +1,237 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Leads</h1>
+    <p class="page-subtitle">{{ leads.length }} leads assigned to you</p>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input placeholder="Search leads..." [(ngModel)]="searchTerm" (input)="filter()" />
+  </div>
+  <select class="form-control filter-select" [(ngModel)]="statusFilter" (change)="filter()">
+    <option value="">All Statuses</option>
+    <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+  </select>
+</div>
+
+<!-- Leads Table -->
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">Assigned Leads</span>
+    <div class="email-info-badge">
+      <span>📧</span> Follow-ups auto-send email to lead
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Email</th>
+          <th>Company</th><th>Source</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let lead of filtered">
+          <td class="mono muted-sm">{{ lead.id }}</td>
+          <td>
+            <div class="lead-name">{{ lead.name }}</div>
+            <div class="lead-phone">{{ lead.phone }}</div>
+          </td>
+          <td>
+            <div class="lead-email">{{ lead.email }}</div>
+            <div class="email-badge" *ngIf="lead.email">📧 receives emails</div>
+          </td>
+          <td>{{ lead.company || '—' }}</td>
+          <td class="text-muted small">{{ lead.source || '—' }}</td>
+          <td><span class="badge badge-{{ lead.status.toLowerCase() }}">{{ lead.status }}</span></td>
+          <td>
+            <div class="action-group">
+              <button class="btn btn-sm btn-secondary" (click)="openStatus(lead)">Status</button>
+              <button class="btn btn-sm btn-primary" (click)="openFollowUp(lead)" title="Add follow-up & notify lead">
+                📧 Follow-up
+              </button>
+              <button class="btn btn-sm btn-secondary btn-icon" (click)="viewFollowUps(lead)" title="View history">📋</button>
+              <button class="btn btn-sm btn-success"
+                      (click)="convertLead(lead)"
+                      [disabled]="lead.status === 'CONVERTED' || lead.status === 'REJECTED'"
+                      title="Convert to Customer">🔄</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon">🎯</div>
+              <div class="empty-text">No leads assigned to you yet</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== Update Status Modal ====== -->
+<div class="modal-overlay" *ngIf="showStatusModal" (click)="closeAll()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Update Status</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="lead-info-text">Lead: <strong>{{ selectedLead?.name }}</strong></p>
+      <div class="form-group">
+        <label class="form-label">Select New Status</label>
+        <div class="status-grid">
+          <button *ngFor="let s of statuses"
+                  class="btn btn-secondary status-btn"
+                  [class.status-active]="newStatus === s"
+                  (click)="newStatus = s">
+            <span>{{ statusIcon(s) }}</span> {{ s }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Cancel</button>
+      <button class="btn btn-primary" (click)="updateStatus()" [disabled]="saving">
+        {{ saving ? 'Updating...' : 'Update Status' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Add Follow-Up + Email Modal ====== -->
+<div class="modal-overlay" *ngIf="showFollowUpModal" (click)="closeAll()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Add Follow-Up</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Lead recipient banner -->
+      <div class="email-recipient-banner">
+        <span class="recipient-icon">📧</span>
+        <div>
+          <div class="recipient-label">Email notification will be sent to:</div>
+          <div class="recipient-email">{{ selectedLead?.name }} &lt;{{ selectedLead?.email }}&gt;</div>
+        </div>
+      </div>
+
+      <!-- Success + Email status banner -->
+      <div *ngIf="formSuccess" class="email-success-banner" [class.email-sent]="emailSent" [class.email-skipped]="!emailSent">
+        <span class="banner-icon">{{ emailSent ? '📧' : '⚠️' }}</span>
+        <div>
+          <div class="banner-title">{{ emailSent ? '✅ Follow-up Saved & Email Sent!' : '✅ Follow-up Saved — No Email Sent' }}</div>
+          <div class="banner-msg">{{ formSuccessMessage }}</div>
+        </div>
+      </div>
+
+      <form [formGroup]="followUpForm">
+        <div class="form-group">
+          <label class="form-label">Notes * <span class="label-hint">(will appear in email)</span></label>
+          <textarea class="form-control" formControlName="notes" rows="4"
+                    placeholder="Describe the interaction, what was discussed, next steps..."></textarea>
+          <div *ngIf="followUpForm.get('notes')?.invalid && followUpForm.get('notes')?.touched"
+               class="form-error">Notes are required</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Next Follow-Up Date <span class="label-hint">(included in email)</span></label>
+            <input class="form-control" type="datetime-local" formControlName="followUpDate" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Outcome <span class="label-hint">(included in email)</span></label>
+            <select class="form-control" formControlName="outcome">
+              <option value="">Select outcome</option>
+              <option value="Called - No Answer">Called - No Answer</option>
+              <option value="Left Voicemail">Left Voicemail</option>
+              <option value="Spoke - Positive">Spoke - Positive</option>
+              <option value="Spoke - Neutral">Spoke - Neutral</option>
+              <option value="Spoke - Negative">Spoke - Negative</option>
+              <option value="Email Sent">Email Sent</option>
+              <option value="Meeting Scheduled">Meeting Scheduled</option>
+              <option value="Demo Completed">Demo Completed</option>
+              <option value="Proposal Sent">Proposal Sent</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Close</button>
+      <button class="btn btn-primary" (click)="addFollowUp()"
+              [disabled]="followUpForm.invalid || saving">
+        {{ saving ? 'Saving & Sending...' : '📧 Save & Notify Lead' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== View Follow-Ups Timeline Modal ====== -->
+<div class="modal-overlay" *ngIf="showViewFollowUpsModal" (click)="closeAll()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Follow-Up History — {{ selectedLead?.name }}</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="leadFollowUps.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">No follow-ups recorded yet</div>
+      </div>
+      <div *ngFor="let f of leadFollowUps; let i = index" class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div *ngIf="i < leadFollowUps.length - 1" class="timeline-line"></div>
+        <div class="followup-card">
+          <div class="followup-header">
+            <span class="followup-author">{{ f.createdBy.name }}</span>
+            <div class="followup-meta">
+              <span class="email-chip">📧 emailed</span>
+              <span class="followup-date mono">{{ f.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+          </div>
+          <p class="followup-notes">{{ f.notes }}</p>
+          <div class="followup-tags">
+            <span *ngIf="f.outcome" class="tag tag-amber">{{ f.outcome }}</span>
+            <span *ngIf="f.followUpDate" class="tag tag-blue">📅 {{ f.followUpDate | date:'dd MMM, HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Close</button>
+      <button class="btn btn-primary" (click)="openFollowUp(selectedLead!)">📧 + New Follow-Up</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Convert to Customer Modal ====== -->
+<div class="modal-overlay" *ngIf="showConvertModal" (click)="closeAll()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Convert to Customer</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="convert-confirm">
+        <div class="convert-icon">🎉</div>
+        <p class="convert-title">Convert <strong>{{ selectedLead?.name }}</strong> to a customer?</p>
+        <p class="convert-sub">This will mark the lead as CONVERTED and create a new customer record.</p>
+      </div>
+      <div *ngIf="convertError" class="alert alert-error">{{ convertError }}</div>
+      <div *ngIf="convertSuccess" class="alert alert-success">✅ {{ convertSuccess }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Cancel</button>
+      <button class="btn btn-success" (click)="confirmConvert()"
+              [disabled]="saving || !!convertSuccess">
+        {{ saving ? 'Converting...' : '✅ Confirm Convert' }}
+      </button>
+    </div>
+  </div>
+</div>

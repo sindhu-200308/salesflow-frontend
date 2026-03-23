@@ -1,0 +1,9 @@
+.pipeline-card { padding: 24px; }
+.pipeline-card .table-title { margin-bottom: 20px; }
+.pipeline-list { display: flex; flex-direction: column; gap: 12px; }
+.pipeline-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.pipeline-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.pipeline-count { font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+.pipeline-bar-bg { background: var(--bg-elevated); border-radius: 4px; height: 8px; overflow: hidden; }
+.pipeline-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.loading-state { text-align: center; padding: 60px; color: var(--text-muted); }

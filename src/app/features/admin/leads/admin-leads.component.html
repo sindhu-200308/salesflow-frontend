@@ -1,0 +1,135 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Leads</h1>
+    <p class="page-subtitle">{{ leads.length }} total leads in the system</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreateModal()">+ Add Lead</button>
+</div>
+
+<!-- Table -->
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">All Leads</span>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input placeholder="Search leads..." [(ngModel)]="searchTerm" (input)="filterLeads()" />
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Email</th><th>Company</th>
+          <th>Status</th><th>Manager</th><th>Employee</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let lead of filteredLeads">
+          <td class="mono muted-sm">{{ lead.id }}</td>
+          <td>{{ lead.name }}</td>
+          <td class="text-muted">{{ lead.email }}</td>
+          <td>{{ lead.company || '—' }}</td>
+          <td><span class="badge badge-{{ lead.status.toLowerCase() }}">{{ lead.status }}</span></td>
+          <td>{{ lead.assignedManager?.name || '—' }}</td>
+          <td>{{ lead.assignedEmployee?.name || '—' }}</td>
+          <td>
+            <div class="action-group">
+              <button class="btn btn-sm btn-secondary" (click)="openAssignModal(lead)">Assign</button>
+              <button class="btn btn-sm btn-secondary" (click)="openEditModal(lead)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteLead(lead.id)">Del</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredLeads.length === 0">
+          <td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon">🎯</div>
+              <div class="empty-text">No leads found</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create / Edit Modal -->
+<div class="modal-overlay" *ngIf="showFormModal" (click)="closeModals()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">{{ editingLead ? 'Edit Lead' : 'New Lead' }}</span>
+      <button class="modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="formError" class="alert alert-error">{{ formError }}</div>
+      <form [formGroup]="leadForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input class="form-control" formControlName="name" placeholder="John Smith" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input class="form-control" formControlName="email" placeholder="john@company.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-control" formControlName="phone" placeholder="+91 9999 9999" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company</label>
+            <input class="form-control" formControlName="company" placeholder="Acme Corp" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Source</label>
+            <select class="form-control" formControlName="source">
+              <option value="">Select source</option>
+              <option *ngFor="let s of sources" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="form-group" *ngIf="editingLead">
+            <label class="form-label">Status</label>
+            <select class="form-control" formControlName="status">
+              <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="form-control" formControlName="notes" placeholder="Additional notes..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModals()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveLead()" [disabled]="leadForm.invalid || saving">
+        {{ saving ? 'Saving...' : (editingLead ? 'Update Lead' : 'Create Lead') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal-overlay" *ngIf="showAssignModal" (click)="closeModals()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Assign Lead — {{ assigningLead?.name }}</span>
+      <button class="modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Assign to Manager</label>
+        <select class="form-control" [(ngModel)]="selectedManagerId">
+          <option [ngValue]="null">Select manager...</option>
+          <option *ngFor="let m of managers" [ngValue]="m.id">{{ m.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModals()">Cancel</button>
+      <button class="btn btn-primary" (click)="assignToManager()" [disabled]="!selectedManagerId || saving">
+        {{ saving ? 'Assigning...' : 'Assign Manager' }}
+      </button>
+    </div>
+  </div>
+</div>

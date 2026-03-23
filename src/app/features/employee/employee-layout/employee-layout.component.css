@@ -1,0 +1,6 @@
+.employee-avatar {
+  border-color: var(--blue) !important;
+  color: var(--blue) !important;
+  background: var(--blue-dim) !important;
+}
+.user-role { color: var(--blue); }

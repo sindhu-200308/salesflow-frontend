@@ -1,0 +1,59 @@
+<div class="crm-layout">
+  <aside class="crm-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">💼</div>
+        <div>
+          <div class="logo-text">SalesCRM</div>
+          <div class="logo-sub">Admin Panel</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="avatar">{{ getInitials() }}</div>
+        <div>
+          <div class="user-name">{{ user?.name }}</div>
+          <div class="user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+
+      <div class="nav-section-label">Management</div>
+      <a class="nav-item" routerLink="/admin/leads" routerLinkActive="active">
+        <span class="nav-icon">🎯</span> Leads
+      </a>
+      <a class="nav-item" routerLink="/admin/customers" routerLinkActive="active">
+        <span class="nav-icon">👥</span> Customers
+      </a>
+      <a class="nav-item" routerLink="/admin/products" routerLinkActive="active">
+        <span class="nav-icon">📦</span> Products
+      </a>
+      <a class="nav-item" routerLink="/admin/sales" routerLinkActive="active">
+        <span class="nav-icon">💰</span> Sales
+      </a>
+      <a class="nav-item" routerLink="/admin/employees" routerLinkActive="active">
+        <span class="nav-icon">🏢</span> Employees
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span>🚪</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <main class="crm-main">
+    <div class="crm-content">
+      <router-outlet />
+    </div>
+  </main>
+</div>

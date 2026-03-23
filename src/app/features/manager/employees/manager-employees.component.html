@@ -1,0 +1,87 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Team</h1>
+    <p class="page-subtitle">{{ employees.length }} sales employees</p>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">Sales Employees</span>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of employees">
+          <td>{{ emp.name }}</td>
+          <td class="text-muted">{{ emp.email }}</td>
+          <td>{{ emp.phone }}</td>
+          <td>
+            <span class="badge" [class]="emp.active ? 'badge-active' : 'badge-inactive'">
+              {{ emp.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-secondary" (click)="viewLeads(emp)">View Leads</button>
+          </td>
+        </tr>
+        <tr *ngIf="employees.length === 0">
+          <td colspan="5">
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <div class="empty-text">No employees found</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Employee Leads Modal -->
+<div class="modal-overlay" *ngIf="showLeadsModal" (click)="closeModal()">
+  <div class="modal modal-xl" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Leads — {{ selectedEmployee?.name }}</span>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="emp-stats-grid">
+        <div *ngFor="let st of empStats" class="emp-stat-card">
+          <div class="emp-stat-value">{{ st.count }}</div>
+          <div class="emp-stat-label">{{ st.label }}</div>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Company</th><th>Status</th><th>Updated</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let lead of empLeads">
+              <td>{{ lead.name }}</td>
+              <td>{{ lead.company || '—' }}</td>
+              <td><span class="badge badge-{{ lead.status.toLowerCase() }}">{{ lead.status }}</span></td>
+              <td class="mono muted-sm">{{ lead.updatedAt | date:'dd MMM yy' }}</td>
+            </tr>
+            <tr *ngIf="empLeads.length === 0">
+              <td colspan="4">
+                <div class="empty-state small-empty">
+                  <div class="empty-icon">🎯</div>
+                  <div class="empty-text">No leads assigned</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+</div>

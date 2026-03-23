@@ -1,0 +1,49 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-circle">💼</div>
+      <h1>SalesCRM</h1>
+      <p>Sign in to your workspace</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-error">⚠️ {{ error }}</div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" formControlName="email" placeholder="you@company.com" />
+        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="form-error">
+          Valid email is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" formControlName="password" placeholder="••••••••" />
+        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="form-error">
+          Password is required
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="loading || loginForm.invalid">
+        <span *ngIf="!loading">Sign In →</span>
+        <span *ngIf="loading">Signing in...</span>
+      </button>
+    </form>
+
+    <div class="demo-section">
+      <p class="demo-label">Demo Credentials</p>
+      <div class="demo-grid">
+        <button class="demo-btn" (click)="fillDemo('admin@salescrm.com','admin123')">
+          <span>👑</span> Admin
+        </button>
+        <button class="demo-btn" (click)="fillDemo('manager@salescrm.com','manager123')">
+          <span>📊</span> Manager
+        </button>
+        <button class="demo-btn" (click)="fillDemo('employee@salescrm.com','employee123')">
+          <span>👤</span> Employee
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

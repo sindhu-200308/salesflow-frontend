@@ -1,0 +1,49 @@
+<div class="crm-layout">
+  <aside class="crm-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">💼</div>
+        <div>
+          <div class="logo-text">SalesCRM</div>
+          <div class="logo-sub">Employee Panel</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="avatar employee-avatar">{{ getInitials() }}</div>
+        <div>
+          <div class="user-name">{{ user?.name }}</div>
+          <div class="user-role">Sales Employee</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item" routerLink="/employee/dashboard" routerLinkActive="active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <div class="nav-section-label">My Work</div>
+      <a class="nav-item" routerLink="/employee/sales" routerLinkActive="active">
+        <span class="nav-icon">💰</span> My Sales
+      </a>
+      <a class="nav-item" routerLink="/employee/leads" routerLinkActive="active">
+        <span class="nav-icon">🎯</span> My Leads
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span>🚪</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <main class="crm-main">
+    <div class="crm-content">
+      <router-outlet />
+    </div>
+  </main>
+</div>

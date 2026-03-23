@@ -1,0 +1,76 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Dashboard</h1>
+    <p class="page-subtitle">Your personal sales performance overview</p>
+  </div>
+</div>
+
+<div *ngIf="stats" class="stats-grid">
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">🎯</div>
+    <div class="stat-value">{{ stats.assignedLeads }}</div>
+    <div class="stat-label">My Leads</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">🆕</div>
+    <div class="stat-value">{{ stats.newLeads }}</div>
+    <div class="stat-label">New</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--amber)">
+    <div class="stat-icon">📞</div>
+    <div class="stat-value">{{ stats.contactedLeads }}</div>
+    <div class="stat-label">Contacted</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--purple)">
+    <div class="stat-icon">💡</div>
+    <div class="stat-value">{{ stats.interestedLeads }}</div>
+    <div class="stat-label">Interested</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ stats.convertedLeads }}</div>
+    <div class="stat-label">Converted</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--red)">
+    <div class="stat-icon">❌</div>
+    <div class="stat-value">{{ stats.rejectedLeads }}</div>
+    <div class="stat-label">Rejected</div>
+  </div>
+  <div class="stat-card" style="--accent-color: #06b6d4">
+    <div class="stat-icon">📋</div>
+    <div class="stat-value">{{ stats.totalFollowUps }}</div>
+    <div class="stat-label">Follow-ups</div>
+  </div>
+</div>
+
+<div *ngIf="stats" class="table-card metrics-card">
+  <div class="table-title">Performance Metrics</div>
+  <div class="metrics-grid">
+    <div class="metric-item">
+      <div class="metric-label">Conversion Rate</div>
+      <div class="metric-value green">{{ conversionRate }}%</div>
+      <div class="metric-sub">of assigned leads converted</div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-label">Rejection Rate</div>
+      <div class="metric-value red">{{ rejectionRate }}%</div>
+      <div class="metric-sub">of assigned leads rejected</div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!stats" class="loading-state">Loading...</div>
+
+<!-- Sales Revenue Cards -->
+<div *ngIf="stats" class="stats-grid" style="margin-top:16px;">
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">₹{{ stats.myRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">My Revenue</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ stats.totalSales }}</div>
+    <div class="stat-label">My Sales Orders</div>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+.metrics-card { padding: 24px; }
+.metrics-card .table-title { margin-bottom: 16px; }
+.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.metric-value { font-size: 36px; font-family: 'Syne', sans-serif; font-weight: 800; line-height: 1; }
+.metric-value.green { color: var(--green); }
+.metric-value.red { color: var(--red); }
+.metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.loading-state { text-align: center; padding: 60px; color: var(--text-muted); }

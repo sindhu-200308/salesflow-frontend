@@ -1,0 +1,131 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Assigned Leads</h1>
+    <p class="page-subtitle">{{ leads.length }} leads assigned to you</p>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input placeholder="Search leads..." [(ngModel)]="searchTerm" (input)="filter()" />
+  </div>
+  <select class="form-control filter-select" [(ngModel)]="statusFilter" (change)="filter()">
+    <option value="">All Statuses</option>
+    <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+  </select>
+</div>
+
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">Lead Pipeline</span>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Name</th><th>Email</th><th>Company</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let lead of filtered">
+          <td class="mono muted-sm">{{ lead.id }}</td>
+          <td>{{ lead.name }}</td>
+          <td class="text-muted">{{ lead.email }}</td>
+          <td>{{ lead.company || '—' }}</td>
+          <td><span class="badge badge-{{ lead.status.toLowerCase() }}">{{ lead.status }}</span></td>
+          <td>{{ lead.assignedEmployee?.name || '—' }}</td>
+          <td>
+            <div class="action-group">
+              <button class="btn btn-sm btn-secondary" (click)="openAssign(lead)">Assign</button>
+              <button class="btn btn-sm btn-secondary" (click)="openStatus(lead)">Status</button>
+              <button class="btn btn-sm btn-secondary btn-icon" (click)="openFollowUps(lead)" title="Follow-ups">📋</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon">🎯</div>
+              <div class="empty-text">No leads found</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Assign to Employee Modal -->
+<div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAll()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Assign Lead — {{ selected?.name }}</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Assign to Employee</label>
+        <select class="form-control" [(ngModel)]="selectedEmployeeId">
+          <option [ngValue]="null">Select employee...</option>
+          <option *ngFor="let e of employees" [ngValue]="e.id">{{ e.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Cancel</button>
+      <button class="btn btn-primary" (click)="assignEmployee()" [disabled]="!selectedEmployeeId || saving">
+        {{ saving ? 'Assigning...' : 'Assign Employee' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal-overlay" *ngIf="showStatusModal" (click)="closeAll()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Update Status — {{ selected?.name }}</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">New Status</label>
+        <select class="form-control" [(ngModel)]="newStatus">
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Cancel</button>
+      <button class="btn btn-primary" (click)="updateStatus()" [disabled]="saving">
+        {{ saving ? 'Updating...' : 'Update Status' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Follow-ups Modal -->
+<div class="modal-overlay" *ngIf="showFollowUpsModal" (click)="closeAll()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Follow-ups — {{ selected?.name }}</span>
+      <button class="modal-close" (click)="closeAll()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="followUps.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">No follow-ups recorded yet</div>
+      </div>
+      <div *ngFor="let f of followUps" class="followup-card">
+        <div class="followup-header">
+          <span class="followup-author">{{ f.createdBy.name }}</span>
+          <span class="followup-date mono">{{ f.createdAt | date:'dd MMM yy, HH:mm' }}</span>
+        </div>
+        <p class="followup-notes">{{ f.notes }}</p>
+        <span *ngIf="f.outcome" class="followup-outcome">{{ f.outcome }}</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAll()">Close</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,209 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Sales</h1>
+    <p class="page-subtitle">{{ sales.length }} total sales records</p>
+  </div>
+</div>
+
+<!-- Revenue Stats -->
+<div *ngIf="stats" class="stats-grid">
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">₹{{ stats.totalRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">Total Revenue</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--amber)">
+    <div class="stat-icon">📅</div>
+    <div class="stat-value">₹{{ stats.monthlyRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">This Month</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">📆</div>
+    <div class="stat-value">₹{{ stats.weeklyRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">This Week</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--purple)">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ stats.totalSales }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ stats.completedSales }}</div>
+    <div class="stat-label">Completed</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--red)">
+    <div class="stat-icon">❌</div>
+    <div class="stat-value">{{ stats.cancelledSales }}</div>
+    <div class="stat-label">Cancelled</div>
+  </div>
+</div>
+
+<!-- Top Performers -->
+<div *ngIf="stats" class="top-grid">
+  <div class="table-card top-card">
+    <div class="table-header"><span class="table-title">🏆 Top Employees by Sales</span></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Rank</th><th>Employee</th><th>Revenue</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let emp of stats.topEmployees; let i = index">
+            <td><span class="rank-badge">{{ i + 1 }}</span></td>
+            <td>{{ emp.employeeName }}</td>
+            <td class="revenue-cell">₹{{ emp.totalSales | number:'1.0-0' }}</td>
+          </tr>
+          <tr *ngIf="!stats.topEmployees?.length">
+            <td colspan="3"><div class="empty-state small-empty"><div class="empty-text">No data yet</div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="table-card top-card">
+    <div class="table-header"><span class="table-title">📦 Top Products by Quantity</span></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Rank</th><th>Product</th><th>Units Sold</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of stats.topProducts; let i = index">
+            <td><span class="rank-badge">{{ i + 1 }}</span></td>
+            <td>{{ p.productName }}</td>
+            <td class="mono" style="color:var(--amber)">{{ p.totalQuantity }}</td>
+          </tr>
+          <tr *ngIf="!stats.topProducts?.length">
+            <td colspan="3"><div class="empty-state small-empty"><div class="empty-text">No data yet</div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Sales Table -->
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">All Sales Orders</span>
+    <div class="header-actions">
+      <select class="form-control filter-select" [(ngModel)]="statusFilter" (change)="filter()">
+        <option value="">All Statuses</option>
+        <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+      </select>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input placeholder="Search..." [(ngModel)]="searchTerm" (input)="filter()" />
+      </div>
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Customer</th><th>Employee</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sale of filtered">
+          <td class="mono muted-sm">{{ sale.id }}</td>
+          <td>
+            <div class="sale-customer">{{ sale.customerName }}</div>
+            <div class="sale-company">{{ sale.customerCompany || '' }}</div>
+          </td>
+          <td>{{ sale.employeeName }}</td>
+          <td class="mono" style="color:var(--text-muted)">{{ sale.items?.length || 0 }} item(s)</td>
+          <td class="revenue-cell">₹{{ sale.totalAmount | number:'1.2-2' }}</td>
+          <td><span class="badge badge-{{ sale.status.toLowerCase() }}">{{ sale.status }}</span></td>
+          <td class="mono muted-sm">{{ sale.createdAt | date:'dd MMM yy' }}</td>
+          <td>
+            <div class="action-group">
+              <button class="btn btn-sm btn-secondary" (click)="viewSale(sale)">View</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteSale(sale.id)">Del</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon">🛒</div>
+              <div class="empty-text">No sales found</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- View Sale Detail Modal -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Sale #{{ selectedSale?.id }} — {{ selectedSale?.customerName }}</span>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedSale">
+      <div class="sale-detail-grid">
+        <div class="detail-block">
+          <div class="detail-label">Customer</div>
+          <div class="detail-value">{{ selectedSale.customerName }}</div>
+          <div class="detail-sub">{{ selectedSale.customerEmail }}</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Sold By</div>
+          <div class="detail-value">{{ selectedSale.employeeName }}</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">
+            <span class="badge badge-{{ selectedSale.status.toLowerCase() }}">{{ selectedSale.status }}</span>
+          </div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Date</div>
+          <div class="detail-value mono">{{ selectedSale.createdAt | date:'dd MMM yyyy, HH:mm' }}</div>
+        </div>
+      </div>
+
+      <div class="items-section">
+        <div class="items-title">Order Items</div>
+        <table class="items-table">
+          <thead><tr><th>Product</th><th>Category</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let item of selectedSale.items">
+              <td>{{ item.productName }}</td>
+              <td style="color:var(--text-muted)">{{ item.productCategory || '—' }}</td>
+              <td class="mono">{{ item.quantity }}</td>
+              <td class="mono">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+              <td class="revenue-cell">₹{{ item.subtotal | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="total-label">Total</td>
+              <td class="revenue-cell total-value">₹{{ selectedSale.totalAmount | number:'1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div *ngIf="selectedSale.notes" class="notes-block">
+        <div class="detail-label">Notes</div>
+        <div class="detail-sub">{{ selectedSale.notes }}</div>
+      </div>
+
+      <!-- Update status -->
+      <div class="status-update">
+        <label class="form-label">Update Status</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+          <button *ngFor="let s of statuses"
+                  class="btn btn-sm btn-secondary"
+                  [class.status-active]="selectedSale.status === s"
+                  (click)="changeStatus(selectedSale.id, s)">
+            {{ s }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+</div>

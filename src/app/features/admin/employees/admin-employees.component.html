@@ -1,0 +1,93 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Employees</h1>
+    <p class="page-subtitle">Manage your sales team</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreateModal()">+ Add Employee</button>
+</div>
+
+<div class="table-card">
+  <div class="table-header">
+    <span class="table-title">All Team Members</span>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+          <th>Role</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of employees">
+          <td class="mono muted-sm">{{ emp.id }}</td>
+          <td>{{ emp.name }}</td>
+          <td class="text-muted">{{ emp.email }}</td>
+          <td>{{ emp.phone }}</td>
+          <td><span class="badge" [class]="getRoleBadge(emp.role)">{{ getRoleLabel(emp.role) }}</span></td>
+          <td><span class="badge" [class]="emp.active ? 'badge-active' : 'badge-inactive'">{{ emp.active ? 'Active' : 'Inactive' }}</span></td>
+          <td>
+            <div class="action-group">
+              <button class="btn btn-sm btn-secondary" (click)="openEditModal(emp)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deactivate(emp.id)">Deactivate</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="employees.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <div class="empty-text">No employees yet</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create / Edit Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">{{ editingUser ? 'Edit Employee' : 'New Employee' }}</span>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="formError" class="alert alert-error">{{ formError }}</div>
+      <form [formGroup]="userForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input class="form-control" formControlName="name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input class="form-control" formControlName="email" [readonly]="!!editingUser" />
+          </div>
+          <div class="form-group" *ngIf="!editingUser">
+            <label class="form-label">Password *</label>
+            <input class="form-control" type="password" formControlName="password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone *</label>
+            <input class="form-control" formControlName="phone" />
+          </div>
+          <div class="form-group" *ngIf="!editingUser">
+            <label class="form-label">Role *</label>
+            <select class="form-control" formControlName="role">
+              <option value="ROLE_SALES_MANAGER">Sales Manager</option>
+              <option value="ROLE_SALES_EMPLOYEE">Sales Employee</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveUser()" [disabled]="userForm.invalid || saving">
+        {{ saving ? 'Saving...' : (editingUser ? 'Update' : 'Create Employee') }}
+      </button>
+    </div>
+  </div>
+</div>

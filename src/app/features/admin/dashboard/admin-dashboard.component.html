@@ -1,0 +1,85 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Complete overview of your sales pipeline</p>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div *ngIf="stats" class="stats-grid">
+  <div class="stat-card" style="--accent-color: var(--amber)">
+    <div class="stat-icon">🎯</div>
+    <div class="stat-value">{{ stats.totalLeads }}</div>
+    <div class="stat-label">Total Leads</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--blue)">
+    <div class="stat-icon">🆕</div>
+    <div class="stat-value">{{ stats.newLeads }}</div>
+    <div class="stat-label">New Leads</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--purple)">
+    <div class="stat-icon">📞</div>
+    <div class="stat-value">{{ stats.contactedLeads }}</div>
+    <div class="stat-label">Contacted</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ stats.convertedLeads }}</div>
+    <div class="stat-label">Converted</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--red)">
+    <div class="stat-icon">❌</div>
+    <div class="stat-value">{{ stats.rejectedLeads }}</div>
+    <div class="stat-label">Rejected</div>
+  </div>
+  <div class="stat-card" style="--accent-color: #06b6d4">
+    <div class="stat-icon">👥</div>
+    <div class="stat-value">{{ stats.totalCustomers }}</div>
+    <div class="stat-label">Customers</div>
+  </div>
+  <div class="stat-card" style="--accent-color: #8b5cf6">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value">{{ stats.totalProducts }}</div>
+    <div class="stat-label">Products</div>
+  </div>
+  <div class="stat-card" style="--accent-color: #f97316">
+    <div class="stat-icon">🏢</div>
+    <div class="stat-value">{{ stats.totalEmployees }}</div>
+    <div class="stat-label">Employees</div>
+  </div>
+</div>
+
+<!-- Pipeline Progress -->
+<div class="table-card pipeline-card" *ngIf="stats">
+  <div class="table-title">Lead Pipeline</div>
+  <div class="pipeline-list">
+    <div *ngFor="let stage of pipeline" class="pipeline-item">
+      <div class="pipeline-header">
+        <span class="pipeline-label">{{ stage.label }}</span>
+        <span class="pipeline-count">{{ stage.value }} / {{ stats.totalLeads }}</span>
+      </div>
+      <div class="pipeline-bar-bg">
+        <div class="pipeline-bar-fill"
+             [style.width.%]="stats.totalLeads ? (stage.value / stats.totalLeads * 100) : 0"
+             [style.background]="stage.color">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!stats" class="loading-state">Loading dashboard...</div>
+
+<!-- Sales Revenue Cards (appended) -->
+<div *ngIf="stats" class="stats-grid" style="margin-top:16px;">
+  <div class="stat-card" style="--accent-color: var(--green)">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">₹{{ stats.totalRevenue | number:'1.0-0' }}</div>
+    <div class="stat-label">Total Revenue</div>
+  </div>
+  <div class="stat-card" style="--accent-color: var(--purple)">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ stats.totalSales }}</div>
+    <div class="stat-label">Total Sales Orders</div>
+  </div>
+</div>

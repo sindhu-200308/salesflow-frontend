@@ -1,0 +1,9 @@
+.manager-avatar {
+  border-color: var(--purple) !important;
+  color: var(--purple) !important;
+  background: var(--purple-dim) !important;
+}
+
+.user-role {
+  color: var(--purple);
+}

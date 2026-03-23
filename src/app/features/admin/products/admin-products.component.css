@@ -1,0 +1,6 @@
+.action-group { display: flex; gap: 6px; }
+.mono { font-family: 'DM Mono', monospace; }
+.muted-sm { color: var(--text-muted); font-size: 11px; }
+.price-cell { color: var(--amber); font-family: 'DM Mono', monospace; }
+.product-name { font-weight: 600; color: var(--text-primary); }
+.product-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }

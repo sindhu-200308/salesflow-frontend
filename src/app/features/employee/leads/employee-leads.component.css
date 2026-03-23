@@ -1,0 +1,182 @@
+.filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-select { width: 160px; height: 36px; padding: 0 12px; }
+.action-group { display: flex; gap: 5px; flex-wrap: wrap; }
+.modal-sm { max-width: 420px; }
+.modal-lg { max-width: 640px; }
+.mono { font-family: 'DM Mono', monospace; }
+.muted-sm { color: var(--text-muted); font-size: 11px; }
+.text-muted { color: var(--text-muted); }
+.source-cell { font-size: 12px; }
+
+.lead-name { font-weight: 600; }
+.lead-phone { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Status Grid */
+.status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.status-btn { justify-content: flex-start; gap: 8px; }
+
+.active-status {
+  border-color: var(--amber) !important;
+  color: var(--amber) !important;
+  background: var(--amber-glow) !important;
+}
+
+.lead-info-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.lead-info-text strong { color: var(--text-primary); }
+
+/* Timeline */
+.timeline-item {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 16px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--bg-card);
+}
+
+.timeline-line {
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: -8px;
+  width: 2px;
+  background: var(--border);
+}
+
+.followup-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.followup-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.followup-author { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.followup-date { font-size: 11px; color: var(--text-muted); }
+.followup-notes { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; }
+
+.followup-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tag-outcome {
+  font-size: 11px;
+  background: var(--amber-glow);
+  color: var(--amber);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.tag-date {
+  font-size: 11px;
+  background: var(--blue-dim);
+  color: var(--blue);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+/* Convert Modal */
+.convert-confirm { text-align: center; padding: 20px 0; }
+.convert-icon { font-size: 48px; margin-bottom: 16px; }
+.convert-title { font-size: 15px; color: var(--text-primary); font-weight: 600; margin-bottom: 8px; }
+.convert-sub { font-size: 13px; color: var(--text-muted); }
+
+/* ---- Email notification UI additions ---- */
+
+.email-info-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--amber);
+  background: var(--amber-glow);
+  border: 1px solid rgba(245,158,11,0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.lead-email { font-size: 13px; color: var(--text-muted); }
+.email-badge {
+  font-size: 10px;
+  color: var(--amber);
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* Email recipient banner inside modal */
+.email-recipient-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--blue-dim);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.recipient-icon { font-size: 22px; }
+.recipient-label { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.recipient-email { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+
+/* Success / email sent banner */
+.email-success-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 1px solid;
+}
+.email-success-banner.email-sent {
+  background: var(--green-dim);
+  border-color: var(--green);
+}
+.email-success-banner.email-skipped {
+  background: var(--amber-glow);
+  border-color: var(--amber-dim);
+}
+.banner-icon { font-size: 22px; }
+.banner-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+.banner-msg { font-size: 12px; color: var(--text-secondary); }
+
+.label-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+/* Follow-up history chip */
+.followup-meta { display: flex; align-items: center; gap: 8px; }
+.email-chip {
+  font-size: 10px;
+  background: var(--green-dim);
+  color: var(--green);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
